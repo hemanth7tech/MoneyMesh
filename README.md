@@ -5,7 +5,7 @@
 MoneyMesh is a tracking-first personal finance app built with Flutter. It helps users view bank accounts, record transactions, understand income and expenses, and see which payment apps are linked to each bank account.
 
 ## Project status
-Early frontend prototype using clearly labelled sample data. No real bank or payment-app connection is implemented.
+Early frontend prototype using clearly labelled sample data. No real bank or payment-app connection is implemented. This repository contains the Flutter application source; Android platform runner files are generated locally with Flutter.
 
 ## Core principles
 - Tracking only: no transfers, payments, scan-and-pay, or money movement.
@@ -24,10 +24,23 @@ Dashboard · Transactions · Income & Expense · Budgets · Reports · Settings
 
 Backend and bank integrations are not enabled in this starter.
 
-## Run locally
-1. Install Flutter and Android Studio.
-2. Clone this repository.
-3. Run `flutter pub get`, then `flutter run`.
+## Run locally (Windows)
+1. Install Flutter and Android Studio, then configure an Android emulator or connect an Android device with USB debugging.
+2. Clone this repository and open its folder in VS Code.
+3. Generate the Android runner files:
+   ```bash
+   flutter create . --platforms=android
+   ```
+4. Fetch packages and run:
+   ```bash
+   flutter pub get
+   flutter run
+   ```
+
+## Run tests
+```bash
+flutter test
+```
 
 ## Roadmap
 1. Build the local demo experience.
