@@ -50,3 +50,7 @@ flutter test
 5. Evaluate authorized account-data integrations only when eligible partnerships and consent flows are available.
 
 No license has been added yet; all rights are reserved by default.
+
+## Project documentation
+- [Product plan and delivery roadmap](docs/PRODUCT_PLAN.md)
+- [Data model and security rules](docs/SECURITY_AND_DATA_MODEL.md)
