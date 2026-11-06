@@ -92,12 +92,26 @@ const transactions = [
   ),
 ];
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     final total = accounts.fold<double>(0, (sum, account) => sum + account.balance);
+    final pages = [
+      _DashboardContent(total: total),
+      const _TransactionsScreen(),
+      const _InsightsScreen(),
+      const _SettingsScreen(),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFF8F7FC),
@@ -111,12 +125,28 @@ class DashboardScreen extends StatelessWidget {
         actions: [
           IconButton(
             tooltip: 'Notifications',
-            onPressed: () {},
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('You are all caught up.')),
+            ),
             icon: const Icon(Icons.notifications_none_rounded),
           ),
         ],
       ),
-      body: ListView(
+      body: IndexedStack(index: _selectedIndex, children: pages),
+      bottomNavigationBar: _BottomNavigation(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (index) => setState(() => _selectedIndex = index),
+      ),
+    );
+  }
+}
+
+class _DashboardContent extends StatelessWidget {
+  const _DashboardContent({required this.total});
+  final double total;
+
+  @override
+  Widget build(BuildContext context) => ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
         children: [
           const Text(
@@ -156,10 +186,155 @@ class DashboardScreen extends StatelessWidget {
           const SizedBox(height: 12),
           const _DemoNotice(),
         ],
-      ),
-      bottomNavigationBar: const _BottomNavigation(),
+      );
+}
+
+class _TransactionsScreen extends StatelessWidget {
+  const _TransactionsScreen();
+
+  @override
+  Widget build(BuildContext context) => ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          const Text('Activity',
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 6),
+          const Text('Your recorded activity across linked accounts.',
+              style: TextStyle(color: Color(0xFF817B91))),
+          const SizedBox(height: 20),
+          const _DemoNotice(),
+          const SizedBox(height: 16),
+          ...transactions.map((item) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _TransactionCard(transaction: item),
+              )),
+        ],
+      );
+}
+
+class _InsightsScreen extends StatelessWidget {
+  const _InsightsScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    final income = transactions
+        .where((item) => item.income)
+        .fold<double>(0, (sum, item) => sum + item.amount);
+    final expenses = transactions
+        .where((item) => !item.income)
+        .fold<double>(0, (sum, item) => sum + item.amount);
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        const Text('Insights',
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 6),
+        const Text('A simple view of the sample transactions.',
+            style: TextStyle(color: Color(0xFF817B91))),
+        const SizedBox(height: 20),
+        _InsightTile(
+          title: 'Recorded income',
+          amount: income,
+          icon: Icons.trending_up_rounded,
+          color: const Color(0xFF16845B),
+        ),
+        const SizedBox(height: 12),
+        _InsightTile(
+          title: 'Recorded expenses',
+          amount: expenses,
+          icon: Icons.trending_down_rounded,
+          color: const Color(0xFFB34D61),
+        ),
+        const SizedBox(height: 12),
+        _InsightTile(
+          title: 'Net activity',
+          amount: income - expenses,
+          icon: Icons.account_balance_wallet_outlined,
+          color: const Color(0xFF7563D8),
+        ),
+        const SizedBox(height: 16),
+        const _DemoNotice(),
+      ],
     );
   }
+}
+
+class _InsightTile extends StatelessWidget {
+  const _InsightTile({
+    required this.title,
+    required this.amount,
+    required this.icon,
+    required this.color,
+  });
+
+  final String title;
+  final double amount;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        child: ListTile(
+          contentPadding: const EdgeInsets.all(14),
+          leading: CircleAvatar(
+            backgroundColor: color.withValues(alpha: 0.10),
+            child: Icon(icon, color: color),
+          ),
+          title: Text(title),
+          trailing: Text(
+            '₹${amount.toStringAsFixed(0)}',
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+          ),
+        ),
+      );
+}
+
+class _SettingsScreen extends StatelessWidget {
+  const _SettingsScreen();
+
+  @override
+  Widget build(BuildContext context) => ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          const Text('Settings',
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 6),
+          const Text('Manage your MoneyMesh preferences.',
+              style: TextStyle(color: Color(0xFF817B91))),
+          const SizedBox(height: 20),
+          const Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.account_balance_outlined),
+                  title: Text('Bank accounts'),
+                  subtitle: Text('Account management is coming next'),
+                ),
+                Divider(height: 1, indent: 56),
+                ListTile(
+                  leading: Icon(Icons.link_rounded),
+                  title: Text('Payment app links'),
+                  subtitle: Text('Tracking only — no payments supported'),
+                ),
+                Divider(height: 1, indent: 56),
+                ListTile(
+                  leading: Icon(Icons.lock_outline_rounded),
+                  title: Text('Privacy & security'),
+                  subtitle: Text('Your financial credentials are never requested'),
+                ),
+                Divider(height: 1, indent: 56),
+                ListTile(
+                  leading: Icon(Icons.info_outline_rounded),
+                  title: Text('About MoneyMesh'),
+                  subtitle: Text('All Your Money in One Place.'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          const _DemoNotice(),
+        ],
+      );
 }
 
 class _TotalCard extends StatelessWidget {
@@ -390,11 +565,18 @@ class _DemoNotice extends StatelessWidget {
 }
 
 class _BottomNavigation extends StatelessWidget {
-  const _BottomNavigation();
+  const _BottomNavigation({
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+  });
+
+  final int selectedIndex;
+  final ValueChanged<int> onDestinationSelected;
 
   @override
   Widget build(BuildContext context) => NavigationBar(
-        selectedIndex: 0,
+        selectedIndex: selectedIndex,
+        onDestinationSelected: onDestinationSelected,
         backgroundColor: Colors.white,
         indicatorColor: const Color(0xFFECE8FF),
         destinations: const [
