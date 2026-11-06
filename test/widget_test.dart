@@ -13,4 +13,23 @@ void main() {
     expect(find.text('Linked payment apps'), findsOneWidget);
     expect(find.text('Recent transactions'), findsOneWidget);
   });
+
+  testWidgets('bottom navigation opens each primary section',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MoneyMeshApp());
+
+    await tester.tap(find.text('Activity'));
+    await tester.pumpAndSettle();
+    expect(find.text('Your recorded activity across linked accounts.'),
+        findsOneWidget);
+
+    await tester.tap(find.text('Insights'));
+    await tester.pumpAndSettle();
+    expect(find.text('Recorded income'), findsOneWidget);
+    expect(find.text('Recorded expenses'), findsOneWidget);
+
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    expect(find.text('Manage your MoneyMesh preferences.'), findsOneWidget);
+  });
 }
