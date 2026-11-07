@@ -19,7 +19,8 @@ Dashboard · Transactions · Income & Expense · Budgets · Reports · Settings
 
 ## Technology
 - Flutter / Dart — Android app
-- Supabase / PostgreSQL — planned backend
+- SQLite / sqflite — on-device database foundation
+- Supabase / PostgreSQL — planned cloud backend
 - Python / FastAPI — planned statement-processing layer
 
 Backend and bank integrations are not enabled in this starter.
@@ -54,3 +55,4 @@ No license has been added yet; all rights are reserved by default.
 ## Project documentation
 - [Product plan and delivery roadmap](docs/PRODUCT_PLAN.md)
 - [Data model and security rules](docs/SECURITY_AND_DATA_MODEL.md)
+- [Local database implementation](docs/LOCAL_DATABASE.md)
