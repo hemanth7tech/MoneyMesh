@@ -101,14 +101,23 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
+  final List<MoneyTransaction> _recordedTransactions =
+      List<MoneyTransaction>.of(transactions);
+
+  void _addTransaction(MoneyTransaction transaction) {
+    setState(() => _recordedTransactions.insert(0, transaction));
+  }
 
   @override
   Widget build(BuildContext context) {
     final total = accounts.fold<double>(0, (sum, account) => sum + account.balance);
     final pages = [
-      _DashboardContent(total: total),
-      const _TransactionsScreen(),
-      const _InsightsScreen(),
+      _DashboardContent(total: total, transactions: _recordedTransactions),
+      _TransactionsScreen(
+        transactions: _recordedTransactions,
+        onAdd: _addTransaction,
+      ),
+      _InsightsScreen(transactions: _recordedTransactions),
       const _SettingsScreen(),
     ];
 
@@ -142,8 +151,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 class _DashboardContent extends StatelessWidget {
-  const _DashboardContent({required this.total});
+  const _DashboardContent({required this.total, required this.transactions});
   final double total;
+  final List<MoneyTransaction> transactions;
 
   @override
   Widget build(BuildContext context) => ListView(
@@ -179,7 +189,7 @@ class _DashboardContent extends StatelessWidget {
           const _SectionHeading(
               title: 'Recent transactions', trailing: 'Demo activity'),
           const SizedBox(height: 12),
-          ...transactions.map((transaction) => Padding(
+          ...this.transactions.map((transaction) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: _TransactionCard(transaction: transaction),
               )),
@@ -190,10 +200,31 @@ class _DashboardContent extends StatelessWidget {
 }
 
 class _TransactionsScreen extends StatelessWidget {
-  const _TransactionsScreen();
+  const _TransactionsScreen({
+    required this.transactions,
+    required this.onAdd,
+  });
+
+  final List<MoneyTransaction> transactions;
+  final ValueChanged<MoneyTransaction> onAdd;
+
+  Future<void> _showAddTransaction(BuildContext context) async {
+    final transaction = await showDialog<MoneyTransaction>(
+      context: context,
+      builder: (_) => const _AddTransactionDialog(),
+    );
+    if (transaction != null) onAdd(transaction);
+  }
 
   @override
-  Widget build(BuildContext context) => ListView(
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: const Color(0xFFF8F7FC),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _showAddTransaction(context),
+          icon: const Icon(Icons.add_rounded),
+          label: const Text('Add transaction'),
+        ),
+        body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           const Text('Activity',
@@ -209,11 +240,13 @@ class _TransactionsScreen extends StatelessWidget {
                 child: _TransactionCard(transaction: item),
               )),
         ],
+      ),
       );
 }
 
 class _InsightsScreen extends StatelessWidget {
-  const _InsightsScreen();
+  const _InsightsScreen({required this.transactions});
+  final List<MoneyTransaction> transactions;
 
   @override
   Widget build(BuildContext context) {
@@ -257,6 +290,122 @@ class _InsightsScreen extends StatelessWidget {
       ],
     );
   }
+}
+
+class _AddTransactionDialog extends StatefulWidget {
+  const _AddTransactionDialog({super.key});
+
+  @override
+  State<_AddTransactionDialog> createState() => _AddTransactionDialogState();
+}
+
+class _AddTransactionDialogState extends State<_AddTransactionDialog> {
+  final _titleController = TextEditingController();
+  final _amountController = TextEditingController();
+  final _categoryController = TextEditingController(text: 'General');
+  bool _isIncome = false;
+  String _account = accounts.first.mask;
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _amountController.dispose();
+    _categoryController.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final title = _titleController.text.trim();
+    final amount = double.tryParse(_amountController.text.trim());
+    final category = _categoryController.text.trim();
+    if (title.isEmpty || amount == null || amount <= 0 || category.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter a title, category and valid amount.')),
+      );
+      return;
+    }
+    Navigator.of(context).pop(MoneyTransaction(
+      title: title,
+      category: category,
+      when: 'Just now',
+      amount: amount,
+      source: 'Manual entry',
+      account: _account,
+      income: _isIncome,
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        title: const Text('Add transaction'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SegmentedButton<bool>(
+                segments: const [
+                  ButtonSegment(value: false, label: Text('Expense')),
+                  ButtonSegment(value: true, label: Text('Income')),
+                ],
+                selected: {_isIncome},
+                onSelectionChanged: (value) =>
+                    setState(() => _isIncome = value.first),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: _titleController,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _amountController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Amount (₹)',
+                  prefixText: '₹ ',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _categoryController,
+                decoration: const InputDecoration(
+                  labelText: 'Category',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: _account,
+                decoration: const InputDecoration(
+                  labelText: 'Bank account',
+                  border: OutlineInputBorder(),
+                ),
+                items: accounts
+                    .map((account) => DropdownMenuItem(
+                          value: account.mask,
+                          child: Text(account.mask),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) setState(() => _account = value);
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(onPressed: _save, child: const Text('Save')),
+        ],
+      );
 }
 
 class _InsightTile extends StatelessWidget {
