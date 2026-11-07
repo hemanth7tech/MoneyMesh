@@ -32,4 +32,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Manage your MoneyMesh preferences.'), findsOneWidget);
   });
+
+  testWidgets('user can add an expense from Activity',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MoneyMeshApp());
+    await tester.tap(find.text('Activity'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Add transaction'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, 'Description'), 'Bus ticket');
+    await tester.enterText(find.widgetWithText(TextField, 'Amount (₹)'), '45');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Bus ticket'), findsOneWidget);
+    expect(find.textContaining('₹45'), findsOneWidget);
+  });
 }
