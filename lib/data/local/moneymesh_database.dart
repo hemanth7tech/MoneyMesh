@@ -16,7 +16,9 @@ class MoneyMeshDatabase {
     final opened = await openDatabase(
       p.join(directory, _databaseName),
       version: _databaseVersion,
-      onConfigure: (db) async => db.execute('PRAGMA foreign_keys = ON'),
+      onConfigure: (db) async {
+        await db.execute('PRAGMA foreign_keys = ON');
+      },
       onCreate: _createSchema,
     );
     _database = opened;
