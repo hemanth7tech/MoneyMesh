@@ -41,8 +41,8 @@ void main() {
 
     await tester.tap(find.text('Add transaction'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.widgetWithText(TextField, 'Description'), 'Bus ticket');
-    await tester.enterText(find.widgetWithText(TextField, 'Amount (₹)'), '45');
+    await tester.enterText(find.byType(TextField).at(0), 'Bus ticket');
+    await tester.enterText(find.byType(TextField).at(1), '45');
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
