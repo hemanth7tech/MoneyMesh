@@ -196,6 +196,9 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
     );
     if (confirmed != true) return;
     await _accountRepo.archive(account.id);
+    if (_accountFilter == account.id) {
+      setState(() => _accountFilter = '');
+    }
     await _loadData();
     _showMessage('Account archived. History retained.');
   }
