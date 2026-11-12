@@ -20,7 +20,7 @@ Future<void> waitForDatabase(WidgetTester tester) async {
 void main() {
   setUpAll(() async {
     ffi.sqfliteFfiInit();
-    sqflite.databaseFactory = ffi.databaseFactoryFfi;
+    sqflite.databaseFactory = ffi.databaseFactoryFfiNoIsolate;
     final path = '${await sqflite.getDatabasesPath()}/moneymesh.db';
     await sqflite.deleteDatabase(path);
   });
@@ -85,7 +85,7 @@ void main() {
     await waitForDatabase(tester);
 
     expect(find.text('SBI Main'), findsOneWidget);
-    expect(find.text('₹1,000.00'), findsNothing);
+    expect(find.text('₹1000.00'), findsOneWidget);
 
     await tester.tap(find.text('Activity').last);
     await tester.pumpAndSettle();
