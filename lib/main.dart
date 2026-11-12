@@ -68,9 +68,9 @@ String _dateLabel(String value) {
 }
 
 class MoneyMeshHome extends StatefulWidget {
-  const MoneyMeshHome({super.key, this.onDataLoaded});
+  const MoneyMeshHome({super.key, this.loadDataOnStart = true});
 
-  final VoidCallback? onDataLoaded;
+  final bool loadDataOnStart;
 
   @override
   State<MoneyMeshHome> createState() => _MoneyMeshHomeState();
@@ -102,7 +102,7 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    if (widget.loadDataOnStart) _loadData();
   }
 
   Future<void> _loadData() async {
@@ -129,7 +129,7 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
         _paymentLinks = links;
         _loading = false;
       });
-      widget.onDataLoaded?.call();
+
     } on Object catch (error) {
       debugPrint('MoneyMesh local database load failed: $error');
       if (!mounted) return;
@@ -137,7 +137,7 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
         _loadError = error.toString();
         _loading = false;
       });
-      widget.onDataLoaded?.call();
+
     }
   }
 
