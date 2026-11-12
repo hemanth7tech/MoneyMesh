@@ -27,7 +27,9 @@ class BudgetRepository {
       'limit_minor': limitMinor,
       'currency_code': 'INR',
       'period': period,
-      'start_date': DateTime(startDate.year, startDate.month, startDate.day)
+      'start_date': (period == 'monthly'
+              ? DateTime(startDate.year, startDate.month)
+              : DateTime(startDate.year, startDate.month, startDate.day))
           .toIso8601String(),
       'status': 'active',
       'created_at': now,
@@ -51,7 +53,7 @@ class BudgetRepository {
       final end = budget['period'] == 'weekly'
           ? start.add(const Duration(days: 7))
           : DateTime(start.year, start.month + 1, start.day);
-      final effectiveEnd = end.isBefore(now) ? now : end;
+      final effectiveEnd = end.isBefore(now) ? end : now;
       final categoryId = budget['category_id'] as String?;
       final rows = await db.rawQuery('''
         SELECT COALESCE(SUM(amount_minor), 0) AS spent_minor
