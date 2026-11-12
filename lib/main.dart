@@ -123,6 +123,7 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
         _loading = false;
       });
     } on Object catch (error) {
+      debugPrint('MoneyMesh local database load failed: $error');
       if (!mounted) return;
       setState(() {
         _loadError = error.toString();
