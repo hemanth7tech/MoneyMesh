@@ -88,7 +88,7 @@ Prefer a bank/provider transaction ID when supplied by an authorized statement s
 - Policies must scope reads, writes, updates, and deletes to the authenticated owner.
 - Validate amounts, dates, ownership, and account references on the server.
 - Use least-privilege access and avoid logging transaction descriptions or sensitive account data.
-- The local app provides an explicit JSON export and a confirmation-gated delete-all flow. Cloud data export/deletion and account-level cloud retention must be implemented before cloud sync or a multi-user release.
+- The local app provides an explicit JSON export and a confirmation-gated delete-all flow, with SQLite secure-delete mode and database compaction. These are best-effort database cleanup controls, not a guarantee of forensic erasure from flash storage or external backups. Cloud data export/deletion and account-level cloud retention must be implemented before cloud sync or a multi-user release.
 - Do not claim RBI/Account Aggregator compliance without qualified legal and regulatory review.
 
 ## Implementation note
