@@ -41,5 +41,7 @@ class DataManagementService {
       await txn.delete('categories');
       await txn.delete('payment_apps');
     });
+    // Rebuild the SQLite file without deleted table contents where supported.
+    await db.execute('VACUUM');
   }
 }
