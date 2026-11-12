@@ -10,8 +10,14 @@ void main() {
     expect(find.text('MoneyMesh'), findsOneWidget);
     expect(find.text('Combined balance'), findsOneWidget);
     expect(find.text('₹58250.00'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('Bank accounts'), 250);
     expect(find.text('Bank accounts'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('Linked payment apps'), 250);
     expect(find.text('Linked payment apps'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('Recent transactions'), 300);
     expect(find.text('Recent transactions'), findsOneWidget);
   });
 
