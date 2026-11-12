@@ -49,10 +49,21 @@ class BudgetRepository {
     final now = DateTime.now();
     final result = <Map<String, Object?>>[];
     for (final budget in budgets) {
-      final start = DateTime.parse(budget['start_date']! as String);
-      final end = budget['period'] == 'weekly'
-          ? start.add(const Duration(days: 7))
-          : DateTime(start.year, start.month + 1, start.day);
+      final savedStart = DateTime.parse(budget['start_date']! as String);
+      late final DateTime start;
+      late final DateTime end;
+      if (budget['period'] == 'weekly') {
+        final savedDay = DateTime(savedStart.year, savedStart.month, savedStart.day);
+        final elapsedDays = now.isBefore(savedDay) ? 0 : now.difference(savedDay).inDays;
+        final elapsedWeeks = elapsedDays ~/ 7;
+        start = savedDay.add(Duration(days: elapsedWeeks * 7));
+        end = start.add(const Duration(days: 7));
+      } else {
+        start = now.isBefore(savedStart)
+            ? DateTime(savedStart.year, savedStart.month, savedStart.day)
+            : DateTime(now.year, now.month);
+        end = DateTime(start.year, start.month + 1);
+      }
       final effectiveEnd = end.isBefore(now) ? end : now;
       final categoryId = budget['category_id'] as String?;
       final rows = await db.rawQuery('''
@@ -70,6 +81,7 @@ class BudgetRepository {
       result.add({
         ...budget,
         'spent_minor': rows.first['spent_minor'] as int,
+        'period_start': start.toIso8601String(),
         'period_end': end.toIso8601String(),
       });
     }
