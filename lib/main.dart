@@ -93,6 +93,8 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
   String _query = '';
   String _accountFilter = '';
   String _directionFilter = '';
+  String _categoryFilter = '';
+  DateTimeRange? _dateRange;
 
   @override
   void initState() {
@@ -572,6 +574,19 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
         ],
       );
 
+  Future<void> _selectDateRange() async {
+    final selected = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      initialDateRange: _dateRange,
+      helpText: 'Filter transactions by date',
+    );
+    if (selected != null) {
+      setState(() => _dateRange = selected);
+    }
+  }
+
   Widget _activityPage() {
     final visible = _transactions.where((transaction) {
       final description = (transaction['description']! as String).toLowerCase();
@@ -579,7 +594,12 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
       final queryMatches = _query.isEmpty || description.contains(_query.toLowerCase()) || category.contains(_query.toLowerCase());
       final accountMatches = _accountFilter.isEmpty || transaction['financial_account_id'] == _accountFilter;
       final directionMatches = _directionFilter.isEmpty || transaction['direction'] == _directionFilter;
-      return queryMatches && accountMatches && directionMatches;
+      final categoryMatches = _categoryFilter.isEmpty || transaction['category_id'] == _categoryFilter;
+      final date = DateTime.parse(transaction['occurred_at']! as String).toLocal();
+      final rangeMatches = _dateRange == null ||
+          (!date.isBefore(DateTime(_dateRange!.start.year, _dateRange!.start.month, _dateRange!.start.day)) &&
+           !date.isAfter(DateTime(_dateRange!.end.year, _dateRange!.end.month, _dateRange!.end.day, 23, 59, 59, 999)));
+      return queryMatches && accountMatches && directionMatches && categoryMatches && rangeMatches;
     }).toList();
 
     return Column(
@@ -641,6 +661,45 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
                   onChanged: (value) => setState(() => _accountFilter = value ?? ''),
                 ),
               ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  initialValue: _categoryFilter,
+                  decoration: const InputDecoration(
+                    labelText: 'Category',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  items: [
+                    const DropdownMenuItem(value: '', child: Text('All categories')),
+                    ..._categories.map((item) => DropdownMenuItem(
+                      value: item.id,
+                      child: Text(item.name, overflow: TextOverflow.ellipsis),
+                    )),
+                  ],
+                  onChanged: (value) => setState(() => _categoryFilter = value ?? ''),
+                ),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: _selectDateRange,
+                icon: const Icon(Icons.date_range_outlined, size: 18),
+                label: Text(_dateRange == null
+                    ? 'Date range'
+                    : '${_dateRange!.start.day}/${_dateRange!.start.month}–${_dateRange!.end.day}/${_dateRange!.end.month}'),
+              ),
+              if (_dateRange != null)
+                IconButton(
+                  tooltip: 'Clear date range',
+                  onPressed: () => setState(() => _dateRange = null),
+                  icon: const Icon(Icons.close_rounded),
+                ),
             ],
           ),
         ),
