@@ -77,7 +77,6 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
   final _accountRepo = AccountRepository();
   final _transactionRepo = TransactionRepository();
   final _categoryRepo = CategoryRepository();
-  final _budgetRepo = BudgetRepository();
   final _paymentAppRepo = PaymentAppRepository();
   final _csvImporter = CsvStatementImporter();
 
@@ -100,10 +99,12 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
   }
 
   Future<void> _loadData() async {
-    if (mounted) setState(() {
-      _loading = true;
-      _loadError = null;
-    });
+    if (mounted) {
+      setState(() {
+        _loading = true;
+        _loadError = null;
+      });
+    }
     try {
       await _categoryRepo.ensureDefaults();
       await _paymentAppRepo.ensureDefaults();
@@ -266,15 +267,13 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
       return;
     }
     try {
-      final picked = await FilePicker.pickFiles(
+      final file = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['csv'],
-        withData: true,
       );
-      if (picked.isEmpty) return;
-      final file = picked.first;
-      final bytes = file.bytes;
-      if (bytes == null || bytes.isEmpty) {
+      if (file == null) return;
+      final bytes = await file.readAsBytes();
+      if (bytes.isEmpty) {
         throw const FormatException('The selected CSV file is empty or could not be read.');
       }
       final text = utf8.decode(bytes, allowMalformed: false);
@@ -340,7 +339,7 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
 
   Future<void> _openCategories() async {
     await Navigator.of(context).push<void>(
-      MaterialPageRoute(builder: (_) => CategoryScreen()),
+      MaterialPageRoute(builder: (_) => const CategoryScreen()),
     );
     await _loadData();
   }
@@ -1022,10 +1021,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
   Future<void> _load() async {
     final budgets = await _repository.getActiveWithProgress();
-    if (mounted) setState(() {
-      _budgets = budgets;
-      _loading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _budgets = budgets;
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _addBudget() async {
@@ -1193,10 +1194,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
   Future<void> _load() async {
     await _repository.ensureDefaults();
     final values = await _repository.getAll();
-    if (mounted) setState(() {
-      _categories = values;
-      _loading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _categories = values;
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _add() async {
