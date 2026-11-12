@@ -117,3 +117,24 @@ app.*.symbols
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+
+# Local environment files and secrets (keep examples only).
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Private keys, certificates, and signing material.
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.mobileprovision
+**/key.properties
+
+# Credential files must never be committed.
+credentials*.json
+secrets*.json
+service-account*.json
+firebase-adminsdk*.json
