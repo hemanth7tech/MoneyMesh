@@ -336,7 +336,7 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
       builder: (context) => AlertDialog(
         title: const Text('Delete all local data?'),
         content: const Text(
-          'This permanently removes accounts, transactions, budgets, custom categories, payment-app links and import history from this device. This cannot be undone. Export your data first if you need a copy.',
+          'This removes accounts, transactions, budgets, custom categories, payment-app links and import history from the MoneyMesh database on this device. The database is compacted after deletion, but this is not a guarantee of forensic erasure from device backups or flash storage. Export your data first if you need a copy.',
         ),
         actions: [
           TextButton(
@@ -877,7 +877,7 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
                 ListTile(
                   leading: const Icon(Icons.delete_outline_rounded, color: Color(0xFFB34D61)),
                   title: const Text('Delete all local data'),
-                  subtitle: const Text('Permanently erase MoneyMesh records on this device'),
+                  subtitle: const Text('Clear MoneyMesh records stored on this device'),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: _deleteAllLocalData,
                 ),
