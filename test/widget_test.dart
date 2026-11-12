@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
@@ -6,8 +8,18 @@ import 'package:moneymesh/data/local/moneymesh_database.dart';
 import 'package:moneymesh/main.dart';
 
 Future<void> pumpApp(WidgetTester tester) async {
-  await tester.pumpWidget(const MoneyMeshApp());
-  await waitForDatabase(tester);
+  final loaded = Completer<void>();
+  await tester.pumpWidget(
+    MaterialApp(
+      home: MoneyMeshHome(
+        onDataLoaded: () {
+          if (!loaded.isCompleted) loaded.complete();
+        },
+      ),
+    ),
+  );
+  await tester.runAsync(() => loaded.future);
+  await tester.pumpAndSettle();
 }
 
 Future<void> waitForDatabase(WidgetTester tester) async {
