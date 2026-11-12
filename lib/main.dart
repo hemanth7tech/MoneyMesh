@@ -95,6 +95,7 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
   String _directionFilter = '';
   String _categoryFilter = '';
   DateTimeRange? _dateRange;
+  DateTimeRange? _insightsRange;
 
   @override
   void initState() {
@@ -722,10 +723,25 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
 
   Widget _insightsPage() {
     final now = DateTime.now();
-    final start = _monthStart(now);
+    final range = _insightsRange ??
+        DateTimeRange(start: _monthStart(now), end: now);
+    final start = DateTime(
+      range.start.year,
+      range.start.month,
+      range.start.day,
+    );
+    final end = DateTime(
+      range.end.year,
+      range.end.month,
+      range.end.day,
+      23,
+      59,
+      59,
+      999,
+    );
     final monthRows = _transactions.where((row) {
       final date = DateTime.parse(row['occurred_at']! as String).toLocal();
-      return !date.isBefore(start) && !date.isAfter(now);
+      return !date.isBefore(start) && !date.isAfter(end);
     });
     var income = 0;
     var expenses = 0;
@@ -746,7 +762,32 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
       children: [
         const Text('Insights', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
         const SizedBox(height: 5),
-        Text('Current month · ${now.month}/${now.year}', style: const TextStyle(color: Color(0xFF817B91))),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                '${_dateLabel(range.start.toIso8601String())} – ${_dateLabel(range.end.toIso8601String())}',
+                style: const TextStyle(color: Color(0xFF817B91)),
+              ),
+            ),
+            OutlinedButton.icon(
+              onPressed: () async {
+                final selected = await showDateRangePicker(
+                  context: context,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime.now(),
+                  initialDateRange: range,
+                  helpText: 'Select report date range',
+                );
+                if (selected != null) {
+                  setState(() => _insightsRange = selected);
+                }
+              },
+              icon: const Icon(Icons.date_range_outlined, size: 17),
+              label: const Text('Range'),
+            ),
+          ],
+        ),
         const SizedBox(height: 18),
         _InsightCard(title: 'Recorded income', amount: income, icon: Icons.trending_up_rounded, tint: const Color(0xFF16845B)),
         const SizedBox(height: 10),
