@@ -95,6 +95,7 @@ void main() {
       displayName: 'Linked account',
       openingBalanceMinor: 75000,
     );
+    final before = (await accounts.getAll()).single.currentBalanceMinor;
     final apps = await paymentApps.getAppsWithAccounts();
     final googlePay = apps.firstWhere((app) => app['name'] == 'Google Pay');
 
@@ -104,7 +105,6 @@ void main() {
       accountId: 'test-account-linked',
     );
 
-    final before = (await accounts.getAll()).single.currentBalanceMinor;
     final after = (await accounts.getAll()).single.currentBalanceMinor;
     final updatedApps = await paymentApps.getAppsWithAccounts();
     final updatedGooglePay =
@@ -113,6 +113,15 @@ void main() {
     expect(before, 75000);
     expect(after, before);
     expect(updatedGooglePay['linked_accounts'], 1);
+
+    await accounts.archive('test-account-linked');
+    expect(await accounts.getAll(), isEmpty);
+    expect((await accounts.getAll(includeArchived: true)).single.status, 'archived');
+    final archivedApps = await paymentApps.getAppsWithAccounts();
+    expect(
+      archivedApps.firstWhere((app) => app['name'] == 'Google Pay')['linked_accounts'],
+      0,
+    );
   });
 
   test('CSV imports valid rows and skips an exact duplicate', () async {
