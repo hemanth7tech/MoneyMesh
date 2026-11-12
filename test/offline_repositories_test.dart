@@ -36,6 +36,7 @@ void main() {
     paymentApps = PaymentAppRepository(database: database);
     budgets = BudgetRepository(database: database);
     dataManagement = DataManagementService(database: database);
+    await dataManagement.deleteAllLocalData();
     await categories.ensureDefaults();
     await paymentApps.ensureDefaults();
   });
