@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'data/services/data_management_service.dart';
 import 'data/repositories/account_repository.dart';
 import 'data/repositories/budget_repository.dart';
 import 'data/repositories/category_repository.dart';
@@ -79,6 +80,7 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
   final _categoryRepo = CategoryRepository();
   final _paymentAppRepo = PaymentAppRepository();
   final _csvImporter = CsvStatementImporter();
+  final _dataManagement = DataManagementService();
 
   int _selectedIndex = 0;
   bool _loading = true;
@@ -299,6 +301,53 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
       }
     } on Object catch (error) {
       _showMessage('CSV import failed: $error');
+    }
+  }
+
+  Future<void> _exportData() async {
+    try {
+      final bytes = await _dataManagement.exportJson();
+      final output = await FilePicker.saveFile(
+        fileName: 'moneymesh-export-${DateTime.now().toIso8601String().split('T').first}.json',
+        bytes: bytes,
+        mimeType: 'application/json',
+        dialogTitle: 'Export MoneyMesh data',
+      );
+      if (output != null) {
+        _showMessage('Your MoneyMesh data export was saved.');
+      }
+    } on Object catch (error) {
+      _showMessage('Could not export data: $error');
+    }
+  }
+
+  Future<void> _deleteAllLocalData() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete all local data?'),
+        content: const Text(
+          'This permanently removes accounts, transactions, budgets, custom categories, payment-app links and import history from this device. This cannot be undone. Export your data first if you need a copy.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete everything'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await _dataManagement.deleteAllLocalData();
+      await _loadData();
+      _showMessage('All local finance data was deleted. Default categories and app names were restored.');
+    } on Object catch (error) {
+      _showMessage('Could not delete local data: $error');
     }
   }
 
@@ -709,6 +758,22 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
                   subtitle: const Text('Link apps to existing bank accounts'),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: _managePaymentLinks,
+                ),
+                const Divider(height: 1, indent: 58),
+                ListTile(
+                  leading: const Icon(Icons.file_download_outlined),
+                  title: const Text('Export local data'),
+                  subtitle: const Text('Save a JSON copy of your finance records'),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: _exportData,
+                ),
+                const Divider(height: 1, indent: 58),
+                ListTile(
+                  leading: const Icon(Icons.delete_outline_rounded, color: Color(0xFFB34D61)),
+                  title: const Text('Delete all local data'),
+                  subtitle: const Text('Permanently erase MoneyMesh records on this device'),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: _deleteAllLocalData,
                 ),
                 const Divider(height: 1, indent: 58),
                 const ListTile(
