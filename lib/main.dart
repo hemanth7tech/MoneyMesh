@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() => runApp(const MoneyMeshApp());
 
@@ -189,7 +189,7 @@ class _DashboardContent extends StatelessWidget {
           const _SectionHeading(
               title: 'Recent transactions', trailing: 'Demo activity'),
           const SizedBox(height: 12),
-          ...this.transactions.map((transaction) => Padding(
+          ...transactions.map((transaction) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: _TransactionCard(transaction: transaction),
               )),
@@ -293,7 +293,7 @@ class _InsightsScreen extends StatelessWidget {
 }
 
 class _AddTransactionDialog extends StatefulWidget {
-  const _AddTransactionDialog({super.key});
+  const _AddTransactionDialog();
 
   @override
   State<_AddTransactionDialog> createState() => _AddTransactionDialogState();
@@ -380,7 +380,7 @@ class _AddTransactionDialogState extends State<_AddTransactionDialog> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _account,
+                initialValue: _account,
                 decoration: const InputDecoration(
                   labelText: 'Bank account',
                   border: OutlineInputBorder(),
