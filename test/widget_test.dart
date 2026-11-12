@@ -42,7 +42,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Add bank account'), findsOneWidget);
-    expect(find.byType(TextField), findsNWidgets(4));
+    expect(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(TextField),
+      ),
+      findsNWidgets(4),
+    );
 
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
