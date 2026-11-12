@@ -14,7 +14,9 @@ import 'data/services/csv_statement_importer.dart';
 void main() => runApp(const MoneyMeshApp());
 
 class MoneyMeshApp extends StatelessWidget {
-  const MoneyMeshApp({super.key});
+  const MoneyMeshApp({super.key, this.loadDataOnStart = true});
+
+  final bool loadDataOnStart;
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -36,7 +38,7 @@ class MoneyMeshApp extends StatelessWidget {
             ),
           ),
         ),
-        home: const MoneyMeshHome(),
+        home: MoneyMeshHome(loadDataOnStart: loadDataOnStart),
       );
 }
 
