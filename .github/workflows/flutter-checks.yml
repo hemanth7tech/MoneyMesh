@@ -26,3 +26,7 @@ jobs:
         run: flutter analyze
       - name: Run tests
         run: flutter test
+      - name: Generate Android runner
+        run: flutter create . --platforms=android --org com.moneymesh
+      - name: Build Android debug APK
+        run: flutter build apk --debug
