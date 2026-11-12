@@ -32,9 +32,11 @@ class PaymentAppRepository {
   Future<List<Map<String, Object?>>> getAppsWithAccounts() async {
     final db = await _database.database;
     return db.rawQuery('''
-      SELECT p.id, p.name, COUNT(l.financial_account_id) AS linked_accounts
+      SELECT p.id, p.name, COUNT(a.id) AS linked_accounts
       FROM payment_apps p
       LEFT JOIN payment_app_account_links l ON l.payment_app_id = p.id
+      LEFT JOIN financial_accounts a
+        ON a.id = l.financial_account_id AND a.status = 'active'
       GROUP BY p.id
       ORDER BY p.name COLLATE NOCASE
     ''');
