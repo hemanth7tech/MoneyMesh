@@ -88,9 +88,9 @@ Prefer a bank/provider transaction ID when supplied by an authorized statement s
 - Policies must scope reads, writes, updates, and deletes to the authenticated owner.
 - Validate amounts, dates, ownership, and account references on the server.
 - Use least-privilege access and avoid logging transaction descriptions or sensitive account data.
-- Provide user-controlled export and deletion flows before public release.
+- The local app provides an explicit JSON export and a confirmation-gated delete-all flow. Cloud data export/deletion and account-level cloud retention must be implemented before cloud sync or a multi-user release.
 - Do not claim RBI/Account Aggregator compliance without qualified legal and regulatory review.
 
 ## Implementation note
 
-This document is a target design, not a claim that these tables, policies, encryption controls, or integrations already exist. The current repository is still an early Flutter prototype.
+This document is a target design for cloud security. Local SQLite repositories, CSV import, JSON export and confirmation-gated local deletion exist in the offline MVP branch; Supabase, cloud RLS, cloud backup, server validation and financial-data integrations are not implemented.
