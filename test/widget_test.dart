@@ -13,8 +13,8 @@ void main() {
 
     await tester.tap(find.text('Activity').last);
     await tester.pumpAndSettle();
-    expect(find.text('Your recorded activity across linked accounts.'),
-        findsOneWidget);
+    expect(find.text('Activity'), findsWidgets);
+    expect(find.text('Search description or category'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
     expect(find.text('Date range'), findsOneWidget);
 
