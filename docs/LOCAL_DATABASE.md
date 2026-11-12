@@ -22,7 +22,7 @@ Tables:
 - Budget repository: create/archive weekly and monthly budgets and calculate current-period progress.
 - Payment-app repository: seed a known app directory and link/unlink apps to existing account IDs.
 - CSV importer: parses a local CSV, maps each row to an active account name or ID, imports valid rows and skips exact duplicates.
-- Data management service: export local records to JSON or delete all local finance data after user confirmation.
+- Data management service: export local records to JSON or clear all local finance records after user confirmation. SQLite secure-delete mode is enabled and the database is compacted after clearing.
 
 ## Integrity rules
 
@@ -41,6 +41,8 @@ Required headers: date, description, amount, direction, account. Optional header
 Dates currently normalize to the calendar day at midnight; intraday timestamps/time zones are not retained. Account matching is case-insensitive exact matching against an existing account display name or ID. Duplicate matching uses account, amount, direction, normalized description and normalized timestamp; ambiguous transactions are not automatically merged.
 
 CSV content is processed locally. The original file is not stored by default; only import-batch metadata and imported ledger rows are stored.
+
+Local deletion clears the app tables, enables SQLite secure-delete mode and runs VACUUM. This reduces residual database content but does not guarantee forensic erasure from flash storage, filesystem snapshots or external device backups.
 
 ## Current limitations
 
