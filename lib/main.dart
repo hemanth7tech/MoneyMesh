@@ -348,7 +348,7 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
   Widget build(BuildContext context) {
     final pages = [
       _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: Text('Loading your local finance data…'))
           : _loadError != null
               ? _ErrorPanel(message: _loadError!, onRetry: _loadData)
               : _dashboardPage(),
