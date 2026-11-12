@@ -18,6 +18,7 @@ class MoneyMeshDatabase {
       version: _databaseVersion,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
+        await db.execute('PRAGMA secure_delete = ON');
       },
       onCreate: _createSchema,
     );
