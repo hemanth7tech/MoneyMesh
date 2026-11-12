@@ -5,6 +5,18 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart' as ffi;
 import 'package:moneymesh/data/local/moneymesh_database.dart';
 import 'package:moneymesh/main.dart';
 
+Future<void> pumpApp(WidgetTester tester) async {
+  await tester.pumpWidget(const MoneyMeshApp());
+  await waitForDatabase(tester);
+}
+
+Future<void> waitForDatabase(WidgetTester tester) async {
+  await tester.runAsync(() async {
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+  });
+  await tester.pumpAndSettle();
+}
+
 void main() {
   setUpAll(() async {
     ffi.sqfliteFfiInit();
@@ -19,8 +31,7 @@ void main() {
 
   testWidgets('dashboard shows empty local account and transaction sections',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const MoneyMeshApp());
-    await tester.pumpAndSettle();
+    await pumpApp(tester);
 
     expect(find.text('MoneyMesh'), findsOneWidget);
     expect(find.text('Combined balance'), findsOneWidget);
@@ -38,8 +49,7 @@ void main() {
 
   testWidgets('bottom navigation opens activity, insights and settings',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const MoneyMeshApp());
-    await tester.pumpAndSettle();
+    await pumpApp(tester);
 
     await tester.tap(find.text('Activity').last);
     await tester.pumpAndSettle();
@@ -59,8 +69,7 @@ void main() {
 
   testWidgets('account and transaction persist and update derived balance',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const MoneyMeshApp());
-    await tester.pumpAndSettle();
+    await pumpApp(tester);
 
     await tester.tap(find.text('Accounts').last);
     await tester.pumpAndSettle();
@@ -73,7 +82,7 @@ void main() {
     await tester.enterText(accountFields.at(2), '•••• 2481');
     await tester.enterText(accountFields.at(3), '1000.00');
     await tester.tap(find.text('Save account'));
-    await tester.pumpAndSettle();
+    await waitForDatabase(tester);
 
     expect(find.text('SBI Main'), findsOneWidget);
     expect(find.text('₹1,000.00'), findsNothing);
@@ -94,7 +103,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Save').last);
-    await tester.pumpAndSettle();
+    await waitForDatabase(tester);
 
     expect(find.text('Bus ticket'), findsOneWidget);
     expect(find.textContaining('₹45.00'), findsOneWidget);
@@ -102,7 +111,7 @@ void main() {
     await tester.tap(find.text('Home').last);
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Refresh data'));
-    await tester.pumpAndSettle();
+    await waitForDatabase(tester);
 
     expect(find.text('₹955.00'), findsOneWidget);
     expect(find.text('Bus ticket'), findsOneWidget);
