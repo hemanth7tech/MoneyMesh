@@ -434,9 +434,9 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
               children: [
                 for (var index = 0; index < _paymentApps.length; index++) ...[
                   ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: const Color(0xFFF0EEFA),
-                      child: Icon(Icons.account_balance_wallet_outlined, color: const Color(0xFF7563D8)),
+                    leading: const CircleAvatar(
+                      backgroundColor: Color(0xFFF0EEFA),
+                      child: Icon(Icons.account_balance_wallet_outlined, color: Color(0xFF7563D8)),
                     ),
                     title: Text(_paymentApps[index]['name']! as String, style: const TextStyle(fontWeight: FontWeight.w700)),
                     subtitle: Text('${_paymentApps[index]['linked_accounts']} linked bank accounts'),
