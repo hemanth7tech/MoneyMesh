@@ -1,59 +1,65 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:moneymesh/main.dart';
 
 void main() {
-  testWidgets('dashboard displays core MoneyMesh sections',
+  testWidgets('app shell navigates through the main finance sections',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const MoneyMeshApp());
+    await tester.pumpWidget(const MoneyMeshApp(loadDataOnStart: false));
+    await tester.pumpAndSettle();
 
     expect(find.text('MoneyMesh'), findsOneWidget);
-    expect(find.text('Combined balance'), findsOneWidget);
-    expect(find.text('₹58250.00'), findsOneWidget);
+    expect(find.text('Loading your local finance data…'), findsOneWidget);
 
-    await tester.scrollUntilVisible(find.text('Bank accounts'), 250);
-    expect(find.text('Bank accounts'), findsOneWidget);
-
-    await tester.scrollUntilVisible(find.text('Linked payment apps'), 250);
-    expect(find.text('Linked payment apps'), findsOneWidget);
-
-    await tester.scrollUntilVisible(find.text('Recent transactions'), 300);
-    expect(find.text('Recent transactions'), findsOneWidget);
-  });
-
-  testWidgets('bottom navigation opens each primary section',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(const MoneyMeshApp());
-
-    await tester.tap(find.text('Activity'));
+    await tester.tap(find.text('Activity').last);
     await tester.pumpAndSettle();
-    expect(find.text('Your recorded activity across linked accounts.'),
-        findsOneWidget);
+    expect(find.text('Activity'), findsWidgets);
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.text('Date range'), findsOneWidget);
 
-    await tester.tap(find.text('Insights'));
+    await tester.tap(find.text('Insights').last);
     await tester.pumpAndSettle();
     expect(find.text('Recorded income'), findsOneWidget);
     expect(find.text('Recorded expenses'), findsOneWidget);
 
-    await tester.tap(find.text('Settings'));
+    await tester.tap(find.text('Settings').last);
     await tester.pumpAndSettle();
-    expect(find.text('Manage your MoneyMesh preferences.'), findsOneWidget);
+    expect(find.text('Budgets'), findsOneWidget);
+    expect(find.text('Categories'), findsOneWidget);
+    expect(find.text('Export local data'), findsOneWidget);
+    expect(find.text('Delete all local data'), findsOneWidget);
   });
 
-  testWidgets('user can add an expense from Activity',
+  testWidgets('account form opens and transaction entry requires an account',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const MoneyMeshApp());
-    await tester.tap(find.text('Activity'));
+    await tester.pumpWidget(const MoneyMeshApp(loadDataOnStart: false));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Add transaction'));
+    await tester.tap(find.text('Accounts').last);
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).at(0), 'Bus ticket');
-    await tester.enterText(find.byType(TextField).at(1), '45');
-    await tester.tap(find.text('Save'));
+    await tester.tap(find.text('Add account'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Bus ticket'), findsOneWidget);
-    expect(find.textContaining('₹45'), findsOneWidget);
+    expect(find.text('Add bank account'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(TextField),
+      ),
+      findsNWidgets(4),
+    );
+
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Activity').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Add a bank account before recording transactions.'),
+      findsOneWidget,
+    );
   });
 }

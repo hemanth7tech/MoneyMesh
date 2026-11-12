@@ -69,6 +69,10 @@ MoneyMesh is a tracking-first Android personal-finance app. It consolidates a us
 - No screen suggests that demo balances are live bank data.
 - No money-movement capability exists in the app.
 
-## Current known baseline
+## Current implementation status
 
-The repository currently contains a small Flutter dashboard prototype with hard-coded illustrative accounts and transactions. Navigation items are presentational; persistent storage, transaction CRUD, budgets, import, authentication, and backend integration are not yet implemented. Run Flutter analysis and tests in a configured Flutter environment before treating any change as validated.
+The offline MVP implementation branch contains SQLite-backed accounts and transactions, categories, payment-app links, weekly/monthly budgets, current-month insights, local CSV import, JSON export and confirmation-gated local deletion. The Android project runner/build, real-device behavior, and the latest database-backed widget tests still require verification before release.
+
+Not implemented: Supabase authentication or cloud sync, live bank/payment-app connections, PDF import, foreign-currency conversion, server-side security policies, automated backups, signed release builds or regulatory integrations.
+
+Do not treat this branch as released until the PR is reviewed, CI passes on its latest head, and an Android debug build is verified.
