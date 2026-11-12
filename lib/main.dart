@@ -527,7 +527,6 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
     final visible = _transactions.where((transaction) {
       final description = (transaction['description']! as String).toLowerCase();
       final category = (transaction['category_name'] as String? ?? '').toLowerCase();
-      final account = (transaction['account_name'] as String? ?? '');
       final queryMatches = _query.isEmpty || description.contains(_query.toLowerCase()) || category.contains(_query.toLowerCase());
       final accountMatches = _accountFilter.isEmpty || transaction['financial_account_id'] == _accountFilter;
       final directionMatches = _directionFilter.isEmpty || transaction['direction'] == _directionFilter;
@@ -683,7 +682,7 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
         children: [
           const Text('Settings', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
-          const Text('Manage local data and app preferences.', style: TextStyle(color: Color(0xFF817B91))),
+          const Text('Manage your MoneyMesh preferences.', style: TextStyle(color: Color(0xFF817B91))),
           const SizedBox(height: 18),
           Card(
             child: Column(
@@ -727,6 +726,24 @@ class _MoneyMeshHomeState extends State<MoneyMeshHome> {
             ),
           ),
           const SizedBox(height: 16),
+          if (_paymentLinks.isNotEmpty) ...[
+            const Text('Linked accounts', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
+            const SizedBox(height: 8),
+            Card(
+              child: Column(
+                children: _paymentLinks.map((link) => ListTile(
+                  title: Text(link['app_name']! as String),
+                  subtitle: Text(link['account_name']! as String),
+                  trailing: IconButton(
+                    tooltip: 'Unlink account',
+                    onPressed: () => _unlinkPayment(link['id']! as String),
+                    icon: const Icon(Icons.link_off_rounded),
+                  ),
+                )).toList(),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           const _PrivacyNotice(),
         ],
       );
